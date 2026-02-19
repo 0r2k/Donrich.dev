@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { usePathname } from "next/navigation";
 
+import { trackPlausibleEvent } from "@/lib/analytics/plausible";
 import { siteConfig } from "@/lib/site";
 
 type FormState = {
@@ -48,6 +49,9 @@ export function GlobalFooterContact() {
       }
 
       setStatus("success");
+      trackPlausibleEvent("Lead Form Submitted", {
+        path: pathname
+      });
       setFormState(initialState);
     } catch (error) {
       setStatus("error");

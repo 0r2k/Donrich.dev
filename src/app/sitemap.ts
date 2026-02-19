@@ -5,6 +5,13 @@ import { absoluteUrl } from "@/lib/utils";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const projects = await getProjects();
+  const projectEntries: MetadataRoute.Sitemap = projects.map(
+    (project): MetadataRoute.Sitemap[number] => ({
+      url: absoluteUrl(`/proyectos/${project.slug}`),
+      priority: 0.7,
+      changeFrequency: "monthly"
+    })
+  );
 
   return [
     {
@@ -17,10 +24,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
       changeFrequency: "weekly"
     },
-    ...projects.map((project) => ({
-      url: absoluteUrl(`/proyectos/${project.slug}`),
-      priority: 0.7,
-      changeFrequency: "monthly"
-    }))
+    ...projectEntries
   ];
 }

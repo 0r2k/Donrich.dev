@@ -2,7 +2,6 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { sendLeadNotification } from "@/lib/email";
 import { getPayloadClient } from "@/lib/payload";
 import { isRateLimited } from "@/lib/rate-limit";
 
@@ -37,6 +36,7 @@ export async function POST(request: Request) {
 
   try {
     const payloadClient = await getPayloadClient();
+
     await payloadClient.create({
       collection: "leads",
       data: {
@@ -46,19 +46,24 @@ export async function POST(request: Request) {
         sourcePath: data.sourcePath
       }
     });
-  } catch (error) {
-    console.error("No fue posible guardar lead en Payload", error);
-  }
 
-  try {
-    await sendLeadNotification({
-      name: data.name,
-      email: data.email,
-      message: data.message,
-      sourcePath: data.sourcePath
-    });
+    const toEmail = process.env.NEXT_PUBLIC_CONTACT_TO_EMAIL;
+    if (toEmail) {
+      await payloadClient.sendEmail({
+        to: toEmail,
+        subject: `Nuevo lead: ${data.name}`,
+        text: [
+          `Nombre: ${data.name}`,
+          `Email: ${data.email}`,
+          `Origen: ${data.sourcePath ?? "desconocido"}`,
+          "",
+          data.message
+        ].join("\n")
+      });
+    }
   } catch (error) {
-    console.error("No fue posible enviar email", error);
+    console.error("No fue posible guardar lead o enviar email", error);
+    return NextResponse.json({ error: "No fue posible procesar la solicitud" }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

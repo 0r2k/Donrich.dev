@@ -1,42 +1,62 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 import type { PropsWithChildren } from "react";
+import gsap from "gsap";
+
+import { useGSAPSection } from "@/hooks/use-gsap-section";
+import type { GSAPSectionAnimationContext } from "@/hooks/use-gsap-section";
+import { trackPlausibleEvent } from "@/lib/analytics/plausible";
 
 type RevealProps = PropsWithChildren<{
   className?: string;
+  analyticsId?: string;
 }>;
 
-export function Reveal({ children, className }: RevealProps) {
+export function Reveal({ children, className, analyticsId }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const hasTrackedRef = useRef(false);
 
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) {
-      return;
-    }
+  const animation = useCallback(
+    ({ root, reducedMotion }: GSAPSectionAnimationContext) => {
+      if (reducedMotion) {
+        gsap.set(root, { opacity: 1, y: 0 });
+        return;
+      }
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) {
-      node.classList.add("is-visible");
-      return;
-    }
+      // Reset any CSS transitions that might interfere with GSAP
+      gsap.set(root, { transition: "none" });
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
+      // Initial state
+      gsap.set(root, { opacity: 0, y: 32 });
+
+      // Animation with scrub
+      gsap.to(root, {
+        opacity: 1,
+        y: 0,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: root,
+          start: "top 90%",
+          end: "top 70%",
+          scrub: 0.6,
+          toggleActions: "play reverse play reverse",
+          onEnter: () => {
+            if (analyticsId && !hasTrackedRef.current) {
+              hasTrackedRef.current = true;
+              trackPlausibleEvent("Animated Block Interaction", {
+                block_id: analyticsId,
+                path: window.location.pathname
+              });
+            }
           }
-        });
-      },
-      { threshold: 0.2 }
-    );
+        }
+      });
+    },
+    [analyticsId]
+  );
 
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+  useGSAPSection(ref, animation);
 
   return (
     <div ref={ref} className={`reveal ${className ?? ""}`.trim()}>

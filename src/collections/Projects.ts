@@ -1,6 +1,13 @@
 import type { CollectionConfig } from "payload";
 
-import { slugify } from "../lib/utils";
+import { slugify } from "../lib/utils.ts";
+
+const lazyLexicalEditor = () => {
+  return async (args: any) => {
+    const { lexicalEditor } = await import("@payloadcms/richtext-lexical");
+    return lexicalEditor({})(args);
+  };
+};
 
 export const Projects: CollectionConfig = {
   slug: "projects",
@@ -69,15 +76,10 @@ export const Projects: CollectionConfig = {
       type: "number"
     },
     {
-      name: "primaryCategory",
-      type: "relationship",
-      relationTo: "categories"
-    },
-    {
-      name: "secondaryCategories",
-      type: "relationship",
-      relationTo: "categories",
-      hasMany: true
+      name: 'categories',
+      type: 'relationship',
+      relationTo: 'categories',
+      hasMany: true,
     },
     {
       name: "stack",
@@ -104,23 +106,15 @@ export const Projects: CollectionConfig = {
       type: "text"
     },
     {
-      name: "thumbnailUrl",
-      type: "text"
+      name: 'featuredImage',
+      type: 'upload',
+      relationTo: 'media',
     },
     {
-      name: "gallery",
-      type: "array",
-      fields: [
-        {
-          name: "imageUrl",
-          type: "text",
-          required: true
-        },
-        {
-          name: "caption",
-          type: "text"
-        }
-      ]
+      name: 'gallery',
+      type: 'upload',
+      relationTo: 'media',
+      hasMany: true,
     },
     {
       name: "links",
@@ -142,13 +136,11 @@ export const Projects: CollectionConfig = {
       fields: [
         {
           name: "label",
-          type: "text",
-          required: true
+          type: "text"
         },
         {
           name: "value",
-          type: "text",
-          required: true
+          type: "text"
         }
       ]
     },
@@ -168,6 +160,61 @@ export const Projects: CollectionConfig = {
         }
       ],
       index: true
-    }
+    },
+    {
+      name: 'seo',
+      type: 'group',
+      fields: [
+        { name: 'metaTitle', type: 'text' },
+        { name: 'metaDescription', type: 'textarea' },
+        {
+          name: 'ogImage',
+          type: 'upload',
+          relationTo: 'media',
+        },
+      ],
+    },
+    {
+      name: 'blocks',
+      type: 'blocks',
+      blocks: [
+        {
+          slug: 'textBlock',
+          fields: [
+            { name: 'content', type: 'richText', editor: lazyLexicalEditor() },
+          ],
+        },
+        {
+          slug: 'imageBlock',
+          fields: [
+            {
+              name: 'image',
+              type: 'upload',
+              relationTo: 'media',
+            },
+            { name: 'caption', type: 'text' },
+          ],
+        },
+        {
+          slug: 'videoBlock',
+          fields: [
+            { name: 'videoUrl', type: 'text' },
+          ],
+        },
+        {
+          slug: 'statsBlock',
+          fields: [
+            {
+              name: 'items',
+              type: 'array',
+              fields: [
+                { name: 'label', type: 'text' },
+                { name: 'value', type: 'text' },
+              ],
+            },
+          ],
+        },
+      ],
+    },
   ]
 };

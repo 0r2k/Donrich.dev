@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
 
 import { ProjectCard } from "@/components/project-card";
+import { ProjectDetailTracker } from "@/components/project-detail-tracker";
 import { TransitionLink } from "@/components/transition-link";
 import { getProjectBySlug, getRelatedProjects } from "@/lib/projects";
+import Image from "next/image";
 
 type Props = {
   params: Promise<{
@@ -40,14 +42,15 @@ export default async function ProyectoDetallePage({ params }: Props) {
 
   const related = await getRelatedProjects(project, 3);
   const titleTransitionStyle: CSSProperties = {
-    ["viewTransitionName" as string]: `project-title-${project.slug}`
+    ["viewTransitionName" as string]: "active-project-title"
   };
   const imageTransitionStyle: CSSProperties = {
-    ["viewTransitionName" as string]: `project-image-${project.slug}`
+    ["viewTransitionName" as string]: "active-project-image"
   };
 
   return (
     <article className="project-detail-page">
+      <ProjectDetailTracker slug={project.slug} />
       <div className="container">
         <TransitionLink href="/proyectos" className="back-link">
           Volver a proyectos
@@ -66,7 +69,14 @@ export default async function ProyectoDetallePage({ params }: Props) {
 
         {project.thumbnailUrl ? (
           <div className="project-detail-image" style={imageTransitionStyle}>
-            <img src={project.thumbnailUrl} alt={project.title} />
+            <Image
+              src={project.thumbnailUrl}
+              alt={project.title}
+              width={1200}
+              height={800}
+              sizes="(max-width: 760px) 100vw, 80vw"
+              priority
+            />
           </div>
         ) : null}
 
@@ -137,7 +147,14 @@ export default async function ProyectoDetallePage({ params }: Props) {
             <div className="gallery-grid">
               {project.gallery.map((item) => (
                 <figure key={item.imageUrl}>
-                  <img src={item.imageUrl} alt={item.caption ?? project.title} loading="lazy" />
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.caption ?? project.title}
+                    width={1200}
+                    height={800}
+                    sizes="(max-width: 760px) 100vw, 50vw"
+                    loading="lazy"
+                  />
                   {item.caption ? <figcaption>{item.caption}</figcaption> : null}
                 </figure>
               ))}
@@ -168,7 +185,7 @@ export default async function ProyectoDetallePage({ params }: Props) {
             <h2>Proyectos relacionados</h2>
             <div className="project-grid">
               {related.map((relatedProject) => (
-                <ProjectCard key={relatedProject.id} project={relatedProject} />
+                <ProjectCard key={relatedProject.id} project={relatedProject} analyticsContext="related_projects" />
               ))}
             </div>
           </section>

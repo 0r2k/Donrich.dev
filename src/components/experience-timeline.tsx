@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useCallback, useMemo, useRef, useState } from "react";
 
+import { AnimatedSection } from "@/components/animated-section";
+import { useGSAPSection } from "@/hooks/use-gsap-section";
+import type { GSAPSectionAnimationContext } from "@/hooks/use-gsap-section";
+import { animateExperienceTimeline } from "@/lib/animations/experience-timeline";
 import type { ExperienceMilestone } from "@/lib/types";
-
-gsap.registerPlugin(ScrollTrigger);
 
 export function ExperienceTimeline({ items }: { items: ExperienceMilestone[] }) {
   const sectionRef = useRef<HTMLElement>(null);
@@ -23,63 +23,32 @@ export function ExperienceTimeline({ items }: { items: ExperienceMilestone[] }) 
     return `${first} - ${last}`;
   }, [items]);
 
-  useEffect(() => {
-    const section = sectionRef.current;
-    const track = trackRef.current;
-    const progress = progressRef.current;
+  const animation = useCallback(
+    ({ root, reducedMotion }: GSAPSectionAnimationContext) => {
+      const track = trackRef.current;
+      const progress = progressRef.current;
 
-    if (!section || !track || !progress || items.length === 0) {
-      return;
-    }
+      if (!track || !progress) {
+        return;
+      }
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) {
-      progress.style.transform = "scaleX(1)";
-      return;
-    }
-
-    let lastIndex = -1;
-
-    const ctx = gsap.context(() => {
-      const animation = gsap.to(track, {
-        x: () => {
-          const maxOffset = Math.max(0, track.scrollWidth - section.clientWidth + 80);
-          return -maxOffset;
+      return animateExperienceTimeline(
+        {
+          items,
+          track,
+          progress,
+          setActiveIndex
         },
-        ease: "none",
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: true,
-          onUpdate: (self) => {
-            gsap.set(progress, {
-              scaleX: self.progress,
-              transformOrigin: "left center"
-            });
+        { root, reducedMotion }
+      );
+    },
+    [items]
+  );
 
-            const index = Math.min(items.length - 1, Math.floor(self.progress * items.length));
-            if (index !== lastIndex) {
-              lastIndex = index;
-              setActiveIndex(index);
-            }
-          }
-        }
-      });
-
-      return () => {
-        animation.kill();
-      };
-    }, section);
-
-    return () => {
-      ctx.revert();
-      ScrollTrigger.refresh();
-    };
-  }, [items]);
+  useGSAPSection(sectionRef, animation);
 
   return (
-    <section id="experiencia" className="experience-section" ref={sectionRef}>
+    <AnimatedSection id="experiencia" className="experience-section" ref={sectionRef}>
       <div className="experience-sticky">
         <div className="container">
           <p className="eyebrow">Experiencia</p>
@@ -102,6 +71,6 @@ export function ExperienceTimeline({ items }: { items: ExperienceMilestone[] }) 
           ))}
         </ul>
       </div>
-    </section>
+    </AnimatedSection>
   );
 }

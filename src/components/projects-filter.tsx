@@ -1,4 +1,5 @@
 import type { Category, CaseStudyMode } from "@/lib/types";
+import Link from "next/link";
 
 type Props = {
   categories: Category[];
@@ -40,9 +41,9 @@ export function ProjectsFilter({ categories, selectedCategory, selectedType, que
         <button type="submit" className="btn btn-primary">
           Aplicar
         </button>
-        <a href="/proyectos" className="btn btn-ghost">
+        <Link href="/proyectos" className="btn btn-ghost">
           Limpiar
-        </a>
+        </Link>
       </div>
     </form>
   );

@@ -1,7 +1,14 @@
-import { ThemeToggle } from "@/components/theme-toggle";
+"use client";
+
+import { usePathname } from "next/navigation";
 import { TransitionLink } from "@/components/transition-link";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useScrollSpy } from "@/hooks/use-scroll-spy";
 
 export function SiteHeader() {
+  const pathname = usePathname();
+  const activeSection = useScrollSpy(["experiencia", "skills", "contacto"], 100);
+
   return (
     <header className="site-header">
       <div className="container site-header-inner">
@@ -9,11 +16,29 @@ export function SiteHeader() {
           DONRICH
         </TransitionLink>
 
-        <nav className="site-nav" aria-label="Navegacion principal">
-          <TransitionLink href="/#experiencia">Experiencia</TransitionLink>
-          <TransitionLink href="/#skills">Skills</TransitionLink>
-          <TransitionLink href="/proyectos">Proyectos</TransitionLink>
-          <TransitionLink href="/#contacto" className="nav-cta">
+        <nav className="site-nav" aria-label="Navegación principal">
+          <TransitionLink 
+            href="/#experiencia"
+            className={pathname === "/" && activeSection === "experiencia" ? "active" : ""}
+          >
+            Experiencia
+          </TransitionLink>
+          <TransitionLink 
+            href="/#skills"
+            className={pathname === "/" && activeSection === "skills" ? "active" : ""}
+          >
+            Skills
+          </TransitionLink>
+          <TransitionLink 
+            href="/proyectos"
+            className={pathname.startsWith("/proyectos") ? "active" : ""}
+          >
+            Proyectos
+          </TransitionLink>
+          <TransitionLink 
+            href="/#contacto"
+            className={pathname === "/" && activeSection === "contacto" ? "active" : ""}
+          >
             Contacto
           </TransitionLink>
           <ThemeToggle />

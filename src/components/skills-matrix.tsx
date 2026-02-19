@@ -5,14 +5,14 @@ export function SkillsMatrix({ groups }: { groups: SkillGroup[] }) {
   return (
     <section id="skills" className="section-block">
       <div className="container">
-        <Reveal>
+        <Reveal analyticsId="skills-header">
           <p className="eyebrow">Skills</p>
           <h2>Stack transversal para construir producto real</h2>
         </Reveal>
 
         <div className="skills-grid">
           {groups.map((group) => (
-            <Reveal key={group.id} className="skill-card">
+            <Reveal key={group.id} className="skill-card" analyticsId={`skill-group-${group.id}`}>
               <h3>{group.title}</h3>
               <ul>
                 {group.skills.map((skill) => (

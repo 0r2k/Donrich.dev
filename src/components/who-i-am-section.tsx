@@ -4,7 +4,7 @@ export function WhoIAmSection() {
   return (
     <section className="section-block">
       <div className="container">
-        <Reveal>
+        <Reveal analyticsId="who-i-am-copy">
           <p className="eyebrow">Quien soy</p>
           <h2>Ingenieria, diseno y producto en una sola ejecucion.</h2>
           <p className="section-copy">

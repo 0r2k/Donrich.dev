@@ -1,47 +1,19 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
+import { useRef } from "react";
 
+import { animateHeroCinematic } from "@/lib/animations/hero-cinematic";
+import { useGSAPSection } from "@/hooks/use-gsap-section";
+import { AnimatedSection } from "@/components/animated-section";
 import { TransitionLink } from "@/components/transition-link";
 
 export function HeroCinematic() {
   const rootRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) {
-      return;
-    }
-
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) {
-      return;
-    }
-
-    const ctx = gsap.context(() => {
-      gsap.from("[data-hero-item]", {
-        opacity: 0,
-        y: 28,
-        duration: 0.9,
-        stagger: 0.14,
-        ease: "power3.out"
-      });
-
-      gsap.to(".hero-glow", {
-        yPercent: -10,
-        duration: 7,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut"
-      });
-    }, root);
-
-    return () => ctx.revert();
-  }, []);
+  useGSAPSection(rootRef, animateHeroCinematic);
 
   return (
-    <section className="hero" ref={rootRef}>
+    <AnimatedSection className="hero" ref={rootRef}>
       <div className="hero-glow" aria-hidden="true" />
       <div className="container hero-inner">
         <p className="eyebrow" data-hero-item>
@@ -65,6 +37,6 @@ export function HeroCinematic() {
           Scroll para explorar
         </p>
       </div>
-    </section>
+    </AnimatedSection>
   );
 }

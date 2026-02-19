@@ -7,7 +7,7 @@ export function FeaturedProjectsGrid({ projects }: { projects: Project[] }) {
   return (
     <section className="section-block">
       <div className="container">
-        <Reveal>
+        <Reveal analyticsId="featured-projects-header">
           <div className="section-row">
             <div>
               <p className="eyebrow">Proyectos destacados</p>
@@ -21,8 +21,8 @@ export function FeaturedProjectsGrid({ projects }: { projects: Project[] }) {
 
         <div className="project-grid">
           {projects.map((project) => (
-            <Reveal key={project.id}>
-              <ProjectCard project={project} />
+            <Reveal key={project.id} analyticsId={`featured-project-card-${project.slug}`}>
+              <ProjectCard project={project} analyticsContext="featured_projects" />
             </Reveal>
           ))}
         </div>

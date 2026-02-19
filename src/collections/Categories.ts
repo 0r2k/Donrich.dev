@@ -1,6 +1,6 @@
 import type { CollectionConfig } from "payload";
 
-import { slugify } from "../lib/utils";
+import { slugify } from "../lib/utils.ts";
 
 export const Categories: CollectionConfig = {
   slug: "categories",

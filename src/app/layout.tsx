@@ -4,8 +4,10 @@ import Script from "next/script";
 import type { ReactNode } from "react";
 
 import { GlobalFooterContact } from "@/components/global-footer-contact";
+import { SiteAnalytics } from "@/components/site-analytics";
 import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ViewTransitions } from "next-view-transitions";
 import { siteConfig } from "@/lib/site";
 
 import "./globals.css";
@@ -44,25 +46,28 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <body className={`${displayFont.variable} ${bodyFont.variable}`}>
-        <ThemeProvider>
-          <div className="app-shell">
-            <SiteHeader />
-            <main>{children}</main>
-            <GlobalFooterContact />
-          </div>
-        </ThemeProvider>
+    <ViewTransitions>
+      <html lang="es" suppressHydrationWarning>
+        <body className={`${displayFont.variable} ${bodyFont.variable}`}>
+          <ThemeProvider>
+            <div className="app-shell">
+              <SiteHeader />
+              <main>{children}</main>
+              <GlobalFooterContact />
+            </div>
+          </ThemeProvider>
+          <SiteAnalytics />
 
-        {process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN ? (
-          <Script
-            defer
-            data-domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN}
-            src="https://plausible.io/js/script.js"
-            strategy="afterInteractive"
-          />
-        ) : null}
-      </body>
-    </html>
+          {process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN && (
+            <Script
+              defer
+              data-domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN}
+              src="https://plausible.io/js/script.js"
+              strategy="afterInteractive"
+            />
+          )}
+        </body>
+      </html>
+    </ViewTransitions>
   );
 }

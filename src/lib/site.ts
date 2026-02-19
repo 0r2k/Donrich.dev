@@ -4,7 +4,7 @@ export const siteConfig = {
   description:
     "Portafolio de desarrollo frontend, backend, aplicaciones y WordPress con enfoque en producto y resultados.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-  email: process.env.CONTACT_TO_EMAIL ?? "hola@donrich.dev",
+  email: process.env.NEXT_PUBLIC_CONTACT_TO_EMAIL ?? "hola@donrich.dev",
   social: [
     { label: "GitHub", href: "https://github.com" },
     { label: "LinkedIn", href: "https://linkedin.com" },
